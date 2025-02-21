@@ -18,7 +18,8 @@ async function login() {
 
     const data = await response.json();
     localStorage.setItem("token", data.token); // Guardar token
-    window.location.href = "reservas.html"; // Redirige a la página de reservas
+    location.href = "index.html"; // Redirigir a la página principal
+
   } catch (error) {
     console.error("Error:", error);
   }
