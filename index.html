@@ -1,0 +1,107 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login - Restaurante</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+  <h2 class="text-center">Iniciar Sesión</h2>
+  <form id="loginForm">
+    <div class="mb-3">
+      <label for="username" class="form-label">Usuario</label>
+      <input type="text" class="form-control" id="username" required>
+    </div>
+    <div class="mb-3">
+      <label for="password" class="form-label">Contraseña</label>
+      <input type="password" class="form-control" id="password" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Login</button>
+    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#registerModal">Registrarse</button>
+  </form>
+</div>
+
+<!-- Modal de Registro -->
+<div class="modal fade" id="registerModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Registro</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="registerForm">
+          <div class="mb-3">
+            <label for="regUsername" class="form-label">Usuario</label>
+            <input type="text" class="form-control" id="regUsername" required>
+          </div>
+          <div class="mb-3">
+            <label for="regEmail" class="form-label">Correo electrónico</label>
+            <input type="email" class="form-control" id="regEmail" required>
+          </div>
+          <div class="mb-3">
+            <label for="regPassword" class="form-label">Contraseña</label>
+            <input type="password" class="form-control" id="regPassword" required>
+          </div>
+          <button type="submit" class="btn btn-success">Registrar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.getElementById("loginForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    fetch("http://localhost:8080/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    })
+            .then(response => response.json())
+            .then(data => {
+              if (data.token) {
+                localStorage.setItem("token", data.token);
+                window.location.href = "reservas.html";
+              } else {
+                alert("Error en el login");
+              }
+            })
+            .catch(error => console.error("Error:", error));
+  });
+
+  document.getElementById("registerForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    const regUsername = document.getElementById("regUsername").value;
+    const regEmail = document.getElementById("regEmail").value;
+    const regPassword = document.getElementById("regPassword").value;
+
+    fetch("http://localhost:8080/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: regUsername, email: regEmail, password: regPassword })
+    })
+            .then(response => {
+              if (response.ok) {
+                alert("Registro exitoso, ahora puedes iniciar sesión");
+
+                // Cerrar el modal manualmente
+                let modal = bootstrap.Modal.getInstance(document.getElementById("registerModal"));
+                modal.hide();
+              } else {
+                return response.json().then(data => { throw new Error(data.message || "Error en el registro"); });
+              }
+            })
+            .catch(error => alert(error.message));
+  });
+
+</script>
+</body>
+</html>
